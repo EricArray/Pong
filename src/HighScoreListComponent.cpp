@@ -1,48 +1,50 @@
 #include "HighScoreListComponent.hpp"
 #include "common.hpp"
+#include "HighScores.hpp"
 
 #include <string>
 
 using namespace std::string_literals;
 
+std::string format_date(const std::string& date) {
+    auto year = date.substr(0, 4);
+    auto month = date.substr(4, 2);
+    auto day = date.substr(6, 2);
+    return day + "/" + month + "/" + year;
+}
+
 HighScoreListComponent::HighScoreListComponent(const Game& game) {
-    auto high_score_entries = game.get_high_score_entries();
+    auto high_score_entries = load_high_score_entries();
     this->items.reserve(high_score_entries.size());
     int i = 0;
     for (auto& entry : high_score_entries) {
         auto rank = game.renderer().create_text_texture("#"s + std::to_string(i + 1));
         auto name = game.renderer().create_text_texture(entry.name);
-        auto winner = game.renderer().create_text_texture(get_player_name(entry.winner, entry.vs_mode));
-        auto vs_mode = game.renderer().create_text_texture(get_vs_mode_name(entry.vs_mode));
-        auto score_p1 = game.renderer().create_text_texture(std::to_string(entry.score_p1));
-        auto score_p2 = game.renderer().create_text_texture(std::to_string(entry.score_p2));
+        auto date = game.renderer().create_text_texture(format_date(entry.date));
+        auto scores = game.renderer().create_text_texture(std::to_string(entry.score_p1) + " - " + std::to_string(entry.score_p2));
 
         this->items.emplace_back(
             std::move(rank),
             std::move(name),
-            std::move(winner),
-            std::move(vs_mode),
-            std::move(score_p1),
-            std::move(score_p2)
+            std::move(date),
+            std::move(scores)
         );
         i += 1;
     }
 }
 
-void HighScoreListComponent::render(const Renderer& re, int x, int y) const {
-    re.set_view_port(rect(x, y, 800, FONT_SIZE * 10));
+void HighScoreListComponent::render(const Renderer& re, const SDL_Rect& dst) const {
+    re.set_view_port(dst);
 
-    re.render_rect(rect(0, 0, 800, FONT_SIZE * 10), FORE_COLOR);
+    re.render_rect(rect(0, 0, dst.w, dst.h), FORE_COLOR, std::nullopt);
 
     int i = 0;
     for (auto& item : this->items) {
         auto item_y = FONT_SIZE * i;
-        re.render_texture(item.rank, point(0, item_y));
-        re.render_texture(item.name, point(100, item_y));
-        re.render_texture(item.winner, point(400, item_y));
-        re.render_texture(item.vs_mode, point(500, item_y));
-        re.render_texture(item.score_p1, point(700, item_y));
-        re.render_texture(item.score_p2, point(750, item_y));
+        re.render_texture(item.rank, item.rank.bounding_box() + point(25, item_y));
+        re.render_texture(item.name, item.name.bounding_box() + point(75, item_y));
+        re.render_texture(item.scores, item.scores.bounding_box() + point(dst.w - 400, item_y));
+        re.render_texture(item.date, item.date.bounding_box() + point(dst.w - 250, item_y));
         i += 1;
     }
 

@@ -30,9 +30,11 @@ void PhysicsWorld::update() {
 }
 
 b2Body*
-PhysicsWorld::create_body(b2BodyDef& def, b2FixtureDef& fixture_def, std::unique_ptr<BodyBehavior> body_behavior) {
+PhysicsWorld::create_body(b2BodyDef& def, const std::vector<b2FixtureDef>& fixture_defs, std::unique_ptr<BodyBehavior> body_behavior) {
     auto body = this->world.CreateBody(&def);
-    body->CreateFixture(&fixture_def);
+    for (auto& fixture_def : fixture_defs) {
+        body->CreateFixture(&fixture_def);
+    }
     if (body_behavior) {
         body->SetUserData(body_behavior.release());
     }

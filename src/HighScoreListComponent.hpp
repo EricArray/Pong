@@ -4,26 +4,23 @@
 #include "Game.hpp"
 
 struct HighScoreItem {
-    HighScoreItem(Texture rank, Texture name, Texture winner, Texture vs_mode, Texture score_p1, Texture score_p2) :
-        rank(std::move(rank)), name(std::move(name)),
-        winner(std::move(winner)),
-        vs_mode(std::move(vs_mode)),
-        score_p1(std::move(score_p1)),
-        score_p2(std::move(score_p2)) {}
+    HighScoreItem(Texture rank, Texture name, Texture date, Texture scores) :
+        rank(std::move(rank)),
+        name(std::move(name)),
+        date(std::move(date)),
+        scores(std::move(scores)) {}
 
     Texture rank;
     Texture name;
-    Texture winner;
-    Texture vs_mode;
-    Texture score_p1;
-    Texture score_p2;
+    Texture date;
+    Texture scores;
 };
 
 class HighScoreListComponent {
 public:
     explicit HighScoreListComponent(const Game& game);
 
-    void render(const Renderer& re, int x, int y) const;
+    void render(const Renderer& re, const SDL_Rect& dst) const;
 
 private:
     std::vector<HighScoreItem> items;

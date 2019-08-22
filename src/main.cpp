@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "HighScores.hpp"
 
 void run_pre_tests();
 void start_game();
@@ -14,6 +15,7 @@ void run_pre_tests() {
     test::lazy::should_not_init_until_get_is_called();
     test::lazy::should_only_call_once();
     test::lazy::should_accept_arguments();
+    test::high_score_test();
 }
 
 void start_game() {

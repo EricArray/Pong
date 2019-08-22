@@ -41,6 +41,10 @@ public:
 
     [[nodiscard]] int height() const { return this->h; }
 
+    [[nodiscard]] SDL_Point size() const {
+        return point(this->w, this->h);
+    }
+
     [[nodiscard]] SDL_Rect bounding_box() const {
         return rect(0, 0, this->w, this->h);
     }

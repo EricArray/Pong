@@ -19,18 +19,12 @@ void MatchHeaderComponent::set_scores(int p1_score, int p2_score) {
     this->scores = create_scores_texture(this->game, p1_score, p2_score);
 }
 
-int position_centered_in(int source_width, int dest_width) {
-    return (dest_width - source_width) / 2;
-}
-
 void MatchHeaderComponent::render(const Renderer& renderer, const SDL_Point& pos) const {
-    auto window_third = Renderer::WINDOW_W / 3;
+    auto window_w_third = Renderer::WINDOW_W / 3;
 
-    auto p1_x = position_centered_in(this->p1.width(), window_third);
-    auto score_x = window_third + position_centered_in(this->scores.width(), window_third);
-    auto p2_x = window_third * 2 + position_centered_in(this->p2.width(), window_third);
+    auto dst_third = rect(pos.x, pos.y, window_w_third, FONT_SIZE);
 
-    renderer.render_texture(this->p1, pos + point(p1_x, 0));
-    renderer.render_texture(this->scores, pos + point(score_x, 0));
-    renderer.render_texture(this->p2, pos + point(p2_x, 0));
+    renderer.render_texture(this->p1, center_rect(this->p1.size(), dst_third));
+    renderer.render_texture(this->scores, center_rect(this->scores.size(), dst_third + point(window_w_third, 0)));
+    renderer.render_texture(this->p2, center_rect(this->p2.size(), dst_third + point(window_w_third * 2, 0)));
 }

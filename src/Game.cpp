@@ -66,16 +66,3 @@ void Game::render() {
     this->scene->on_render();
     this->render_engine.present();
 }
-
-static std::vector<HighScoreEntry> high_score_entries = {
-    { "Eric", Player::P1, VsMode::VsComputer, 7, 1 },
-    { "Ernok", Player::P2, VsMode::VsPlayer, 5, 7 },
-};
-
-const std::vector<HighScoreEntry>& Game::get_high_score_entries() const {
-    return high_score_entries;
-}
-
-void Game::save_score(const std::string& name, Player winner, VsMode vs_mode, int score_p1, int score_p2) {
-    high_score_entries.push_back({name, winner, vs_mode, score_p1, score_p2});
-}

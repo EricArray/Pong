@@ -24,9 +24,9 @@ public:
     void present() const;
 
     void render_line(const SDL_Point& a, const SDL_Point& b, SDL_Color color) const;
-    void render_rect(const SDL_Rect& rect, SDL_Color color) const;
-    void render_circle(const SDL_Point& center, float radius, SDL_Color color) const;
-    void render_texture(const Texture& texture, const SDL_Point& pos) const;
+    void render_rect(const SDL_Rect& dst, SDL_Color border_color, std::optional<SDL_Color> fill_color) const;
+    void render_circle(const SDL_Point& center, const SDL_Point& size, SDL_Color color, std::optional<SDL_Color> fill_color) const;
+    void render_texture(const Texture& texture, const SDL_Rect& dst) const;
 
     void set_view_port(const SDL_Rect& rect) const;
     void clear_view_port() const;

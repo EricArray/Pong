@@ -12,7 +12,7 @@ MatchScene::MatchScene(Game& game, VsMode vs_mode) :
     p1_score(0),
     p2_score(0),
     header_component(game, vs_mode),
-    state(new MatchStatePlaying()),    controller_p1(new PaddleControllerPlayer(SDL_SCANCODE_W, SDL_SCANCODE_S)),
+    state(new MatchStatePlaying()), controller_p1(new PaddleControllerPlayer(SDL_SCANCODE_W, SDL_SCANCODE_S)),
     controller_p2(
         vs_mode == VsMode::VsPlayer
         ? static_cast<PaddleController*>(new PaddleControllerPlayer(SDL_SCANCODE_UP, SDL_SCANCODE_DOWN))
@@ -39,7 +39,9 @@ void MatchScene::on_update() {
 
 void MatchScene::on_render() {
     this->header_component.render(game.renderer(), point(0, 0));
-    this->pong_world.render(game.renderer(), 0, 50);
+    this->pong_world.render(game.renderer(),
+                            center_rect(point(900, 450),
+                                        rect(50, 50, Renderer::WINDOW_W - 100, Renderer::WINDOW_H - 100)));
     this->state->on_render(game.renderer());
 }
 

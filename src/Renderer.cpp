@@ -9,6 +9,7 @@ using namespace std::string_literals;
 const char* const Renderer::WINDOW_TITLE = "Pong";
 const int Renderer::WINDOW_W = 1024;
 const int Renderer::WINDOW_H = 720;
+
 static const Uint32 RENDERER_FLAGS = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
 
 void render_engine_test(Renderer& re);
@@ -81,21 +82,32 @@ void Renderer::render_line(const SDL_Point& a, const SDL_Point& b, SDL_Color col
     }
 }
 
-void Renderer::render_rect(const SDL_Rect& rect, SDL_Color color) const {
-    this->set_render_color(color);
-    if (SDL_RenderDrawRect(this->renderer.get(), &rect) < 0) {
+void Renderer::render_rect(const SDL_Rect& dst, SDL_Color border_color, std::optional<SDL_Color> fill_color) const {
+    if (fill_color) {
+        this->set_render_color(*fill_color);
+        if (SDL_RenderFillRect(this->renderer.get(), &dst) < 0) {
+            throw sdl_exception();
+        }
+    }
+
+    this->set_render_color(border_color);
+    if (SDL_RenderDrawRect(this->renderer.get(), &dst) < 0) {
         throw sdl_exception();
     }
 }
 
-void Renderer::render_circle(const SDL_Point& center, float radius, SDL_Color color) const {
-    filledCircleRGBA(this->renderer.get(), center.x, center.y, radius, color.r, color.g, color.b, color.a);
+void Renderer::render_circle(const SDL_Point& center, const SDL_Point& size, SDL_Color color,
+                             std::optional<SDL_Color> fill_color) const {
+    if (fill_color) {
+        auto& fill = *fill_color;
+        filledEllipseRGBA(this->renderer.get(), center.x, center.y, size.x, size.y, fill.r, fill.g, fill.b, fill.a);
+    }
+    ellipseRGBA(this->renderer.get(), center.x, center.y, size.x, size.y, color.r, color.g, color.b, color.a);
 }
 
-void Renderer::render_texture(const Texture& texture, const SDL_Point& pos) const {
+void Renderer::render_texture(const Texture& texture, const SDL_Rect& dst) const {
     SDL_Rect src_rect = texture.bounding_box();
-    SDL_Rect dst_rect = src_rect + pos;
-    if (SDL_RenderCopy(this->renderer.get(), texture.get(), &src_rect, &dst_rect) < 0) {
+    if (SDL_RenderCopy(this->renderer.get(), texture.get(), &src_rect, &dst) < 0) {
         throw std::runtime_error("Error rendering texture: "s + SDL_GetError());
     }
 }
@@ -123,18 +135,18 @@ void render_engine_test(Renderer& re) {
 
     Texture textTexture = re.create_text_texture("Some text 1234567890!\"#$%&/()=?");
 
-    re.render_rect(rect(10, 10, 300, 300), rgba(10, 23, 54, 95));
-    re.render_rect(rect(-10, -10, 300, 300), rgba(10, 23, 54, 95));
-    re.render_rect(rect(10, 10, 9999, 9999), rgba(10, 23, 54, 95));
+    re.render_rect(rect(10, 10, 300, 300), rgba(10, 23, 54, 95), std::nullopt);
+    re.render_rect(rect(-10, -10, 300, 300), rgba(10, 23, 54, 95), rgba(1, 2, 3, 4));
+    re.render_rect(rect(10, 10, 9999, 9999), rgba(10, 23, 54, 95), std::nullopt);
 
-    re.render_texture(textTexture, point(0, 0));
-    re.render_texture(textTexture, point(10, 10));
-    re.render_texture(textTexture, point(-10, -10));
-    re.render_texture(textTexture, point(9999, 9999));
+    re.render_texture(textTexture, textTexture.bounding_box() + point(0, 0));
+    re.render_texture(textTexture, textTexture.bounding_box() + point(10, 10));
+    re.render_texture(textTexture, textTexture.bounding_box() + point(-10, -10));
+    re.render_texture(textTexture, textTexture.bounding_box() + point(9999, 9999));
 
     re.set_view_port(rect(10, 10, 100, 100));
-    re.render_texture(textTexture, point(-10, -10));
-    re.render_texture(textTexture, point(9999, 9999));
+    re.render_texture(textTexture, textTexture.bounding_box() + point(-10, -10));
+    re.render_texture(textTexture, textTexture.bounding_box() + point(9999, 9999));
     re.clear_view_port();
 
     re.present();

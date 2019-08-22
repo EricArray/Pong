@@ -2,22 +2,14 @@
 #include "PongWorld.hpp"
 #include "Player.hpp"
 
-const float WORLD_ZOOM = 40.0f;
+const float BALL_SPEED = 6.0f;
+const float PADDLE_SPEED = 6.0f;
 
-const float BALL_SPEED = 5.0f;
-const float PADDLE_SPEED = 5.0f;
-
-const float FIELD_W = 20.0f;
-const float FIELD_H = 10.0f;
+const float FIELD_W = 30.0f;
+const float FIELD_H = 15.0f;
 const float BALL_RADIUS = 0.5f;
 const float PADDLE_W = 0.5f;
 const float PADDLE_H = 3.0f;
-
-const int RENDER_FIELD_W = static_cast<int>(FIELD_W * WORLD_ZOOM);
-const int RENDER_FIELD_H = static_cast<int>(FIELD_H * WORLD_ZOOM);
-const float RENDER_BALL_RADIUS = BALL_RADIUS * WORLD_ZOOM;
-const int RENDER_PADDLE_W = static_cast<int>(PADDLE_W * WORLD_ZOOM);
-const int RENDER_PADDLE_H = static_cast<int>(PADDLE_H * WORLD_ZOOM);
 
 const b2Vec2 TOP_L(0, 0);
 const b2Vec2 TOP_R(FIELD_W, 0);
@@ -39,7 +31,7 @@ b2Body* create_side_wall(PhysicsWorld& world, const b2Vec2& pos, const b2Vec2& s
     fixture_def.shape = &shape;
     fixture_def.restitution = 1.0;
 
-    return world.create_body(body_def, fixture_def, nullptr);
+    return world.create_body(body_def, {fixture_def}, nullptr);
 }
 
 b2Body* create_goal(PhysicsWorld& world, const b2Vec2& pos, const b2Vec2& size, Player goal_keeper) {
@@ -56,7 +48,7 @@ b2Body* create_goal(PhysicsWorld& world, const b2Vec2& pos, const b2Vec2& size, 
 
     std::unique_ptr<BodyBehavior> body_behavior(new BodyBehaviorGoal(goal_keeper));
 
-    return world.create_body(body_def, fixture_def, std::move(body_behavior));
+    return world.create_body(body_def, {fixture_def}, std::move(body_behavior));
 }
 
 b2Body* create_ball(PhysicsWorld& world, float radius) {
@@ -73,7 +65,7 @@ b2Body* create_ball(PhysicsWorld& world, float radius) {
     fixture_def.restitution = 1.0f;
     fixture_def.friction = 0.0f;
 
-    return world.create_body(body_def, fixture_def, nullptr);
+    return world.create_body(body_def, {fixture_def}, nullptr);
 }
 
 b2Body* create_paddle(PhysicsWorld& world, const b2Vec2& position, float width, float height) {
@@ -81,14 +73,30 @@ b2Body* create_paddle(PhysicsWorld& world, const b2Vec2& position, float width, 
     body_def.type = b2_kinematicBody;
     body_def.position = position;
 
-    b2PolygonShape shape;
-    shape.SetAsBox(width / 2, height / 2);
+    b2PolygonShape base_shape;
+    base_shape.SetAsBox(width / 2, height / 2);
 
-    b2FixtureDef fixture_def;
-    fixture_def.shape = &shape;
-    fixture_def.restitution = 1.0;
+    b2FixtureDef base_fixture_def;
+    base_fixture_def.shape = &base_shape;
+    base_fixture_def.restitution = 1.0;
 
-    return world.create_body(body_def, fixture_def, nullptr);
+    b2CircleShape top_tip_shape;
+    top_tip_shape.m_radius = width / 2;
+    top_tip_shape.m_p.Set(0, -height / 2);
+
+    b2FixtureDef top_tip_fixture_def;
+    top_tip_fixture_def.shape = &top_tip_shape;
+    top_tip_fixture_def.restitution = 1.0;
+
+    b2CircleShape bot_tip_shape;
+    bot_tip_shape.m_radius = width / 2;
+    bot_tip_shape.m_p.Set(0, height / 2);
+
+    b2FixtureDef bot_tip_fixture_def;
+    bot_tip_fixture_def.shape = &bot_tip_shape;
+    bot_tip_fixture_def.restitution = 1.0;
+
+    return world.create_body(body_def, {base_fixture_def, top_tip_fixture_def, bot_tip_fixture_def}, nullptr);
 }
 
 PongWorld::PongWorld() {
@@ -115,36 +123,37 @@ std::vector<MatchSceneAction> PongWorld::update() {
     return actions;
 }
 
-void PongWorld::render(const Renderer& re, int x, int y) {
-    auto field_rect = rect(0, 0, RENDER_FIELD_W, RENDER_FIELD_H);
-    auto view_port = field_rect + point(x, y);
+void render_ball(const Renderer& re, const b2Vec2& zoom, b2Body* ball) {
+    auto& ball_position = ball->GetPosition();
+    auto render_ball_position = point(zoom.x * ball_position.x, zoom.y * ball_position.y);
+    re.render_circle(render_ball_position, point(zoom.x * BALL_RADIUS, zoom.y * BALL_RADIUS), FORE_COLOR, FORE_COLOR);
+}
 
-    re.set_view_port(view_port);
+void render_paddle(const Renderer& re, const b2Vec2& zoom, b2Body* paddle) {
+    auto& pos = paddle->GetPosition();
+    auto base_rect = rect(-zoom.x * PADDLE_W / 2, -zoom.y * PADDLE_H / 2, zoom.x * PADDLE_W, zoom.y * PADDLE_H);
+    auto pos_offset = point(zoom.x * pos.x, zoom.y * pos.y);
+    re.render_rect(base_rect + pos_offset, FORE_COLOR, FORE_COLOR);
 
-    re.render_rect(field_rect, FORE_COLOR);
+}
 
-    auto top_half = point(RENDER_FIELD_W / 2, 0);
-    auto bottom_half = point(RENDER_FIELD_W / 2, RENDER_FIELD_H);
+void PongWorld::render(const Renderer& re, const SDL_Rect& dst) {
+    b2Vec2 zoom(dst.w / FIELD_W, dst.h / FIELD_H);
+
+    re.set_view_port(dst);
+
+    re.render_rect(rect(0, 0, dst.w, dst.h), FORE_COLOR, FIELD_COLOR);
+
+    auto top_half = point(zoom.x * FIELD_W / 2, 0);
+    auto bottom_half = point(zoom.x * FIELD_W / 2, zoom.y * FIELD_H);
     re.render_line(top_half, bottom_half, FORE_COLOR);
 
-    re.render_rect(rect(RENDER_FIELD_W / 2 - 30, RENDER_FIELD_H / 2 - 30, 60, 60), FORE_COLOR);
+    re.render_circle(point(zoom.x * FIELD_W / 2, zoom.y * FIELD_H / 2), point(zoom.x * 1, zoom.x * 1),
+                     FORE_COLOR, std::nullopt);
 
-    auto& ball_position = this->ball->GetPosition();
-    auto render_ball_position = point(static_cast<int>(ball_position.x * WORLD_ZOOM),
-                                      static_cast<int>(ball_position.y * WORLD_ZOOM));
-    re.render_circle(render_ball_position, RENDER_BALL_RADIUS, FORE_COLOR);
-
-    auto& p1_position = this->paddle_p1->GetPosition();
-    auto base_p1_rect = rect(-RENDER_PADDLE_W / 2, -RENDER_PADDLE_H / 2, RENDER_PADDLE_W, RENDER_PADDLE_H);
-    auto p1_position_offset = point(static_cast<int>(p1_position.x * WORLD_ZOOM),
-                                    static_cast<int>(p1_position.y * WORLD_ZOOM));
-    re.render_rect(base_p1_rect + p1_position_offset, FORE_COLOR);
-
-    auto& p2_position = this->paddle_p2->GetPosition();
-    auto base_p2_rect = rect(-RENDER_PADDLE_W / 2, -RENDER_PADDLE_H / 2, RENDER_PADDLE_W, RENDER_PADDLE_H);
-    auto p2_position_offset = point(static_cast<int>(p2_position.x * WORLD_ZOOM),
-                                    static_cast<int>(p2_position.y * WORLD_ZOOM));
-    re.render_rect(base_p2_rect + p2_position_offset, FORE_COLOR);
+    render_ball(re, zoom, this->ball);
+    render_paddle(re, zoom, this->paddle_p1);
+    render_paddle(re, zoom, this->paddle_p2);
 
     re.clear_view_port();
 }
@@ -173,10 +182,17 @@ void set_paddle_movement(PaddleMovement paddle_movement, b2Body* paddle) {
 
     float y;
     switch (paddle_movement) {
-        case PaddleMovement::None: y = 0; break;
-        case PaddleMovement::Up: y = -1; break;
-        case PaddleMovement::Down: y = 1; break;
-        default: throw unexpected();
+        case PaddleMovement::None:
+            y = 0;
+            break;
+        case PaddleMovement::Up:
+            y = -1;
+            break;
+        case PaddleMovement::Down:
+            y = 1;
+            break;
+        default:
+            throw unexpected();
     }
     paddle->SetLinearVelocity(PADDLE_SPEED * b2Vec2(0, y));
 }

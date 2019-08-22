@@ -39,7 +39,7 @@ public:
     PhysicsWorld();
     ~PhysicsWorld() override;
 
-    b2Body* create_body(b2BodyDef& def, b2FixtureDef& fixture_def, std::unique_ptr<BodyBehavior> body_behavior);
+    b2Body* create_body(b2BodyDef& def, const std::vector<b2FixtureDef>& fixture_defs, std::unique_ptr<BodyBehavior> body_behavior);
 
     void update();
 

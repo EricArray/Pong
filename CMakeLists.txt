@@ -12,11 +12,14 @@ INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${SDL2TTF_INCL
 
 set(
         SOURCES
+        src/common.cpp
         src/common.hpp
         src/Game.cpp
         src/Game.hpp
         src/HighScoreListComponent.cpp
         src/HighScoreListComponent.hpp
+        src/HighScores.cpp
+        src/HighScores.hpp
         src/HighScoreScene.cpp
         src/HighScoreScene.hpp
         src/Lazy.hpp

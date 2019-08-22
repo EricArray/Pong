@@ -15,7 +15,7 @@ public:
 
     std::vector<MatchSceneAction> update();
 
-    void render(const Renderer &re, int x, int y);
+    void render(const Renderer &re, const SDL_Rect& dst);
 
     void reset_ball();
     void set_paddle_movement_p1(PaddleMovement paddle_movement);

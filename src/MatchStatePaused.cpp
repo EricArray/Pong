@@ -27,5 +27,6 @@ MatchSceneAction MatchStatePaused::on_update() {
 }
 
 void MatchStatePaused::on_render(const Renderer& re) {
-    this->menu.render(re, rect(100, 100, 500, 500));
+    auto dst = center_rect(point(500, 500), rect(0, 0, Renderer::WINDOW_W, Renderer::WINDOW_H));
+    this->menu.render(re, dst);
 }

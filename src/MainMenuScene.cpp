@@ -45,5 +45,7 @@ void MainMenuScene::on_update() {
 }
 
 void MainMenuScene::on_render() {
-    this->option_menu.render(this->game.renderer(), rect(0, 0, Renderer::WINDOW_W / 2, Renderer::WINDOW_H));
+    auto menu_size = point(Renderer::WINDOW_W / 2, Renderer::WINDOW_H / 2);
+    auto into = rect(0, 0, Renderer::WINDOW_W, Renderer::WINDOW_H);
+    this->option_menu.render(this->game.renderer(), center_rect(menu_size, into));
 }

@@ -22,16 +22,17 @@ OptionMenu::OptionMenu(std::string&& title, const std::vector<OptionMenuOptionDe
 }
 
 void OptionMenu::render(const Renderer& re, const SDL_Rect& dst) {
-    re.render_texture(this->title_tex.get(re), point(dst.x, dst.y));
+    auto& title = this->title_tex.get(re);
+    re.render_texture(title, center_rect(title.size(), rect(dst.x, dst.y, dst.w, FONT_SIZE)));
 
     re.render_rect(
         rect(dst.x, dst.y + FONT_SIZE, dst.w, dst.h - FONT_SIZE),
-        FORE_COLOR
-    );
+        FORE_COLOR, MENU_COLOR);
 
     int i = 0;
     for (auto& option : this->options) {
-        re.render_texture(option.texture.get(re), point(dst.x + 10, dst.y + 42 + i * 32));
+        auto& texture = option.texture.get(re);
+        re.render_texture(texture, texture.bounding_box() + point(dst.x + 10, dst.y + 42 + i * 32));
         i += 1;
     }
 }

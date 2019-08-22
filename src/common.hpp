@@ -35,14 +35,22 @@ inline constexpr SDL_Rect operator - (const SDL_Rect& r, const SDL_Point& p) noe
     return rect(r.x - p.x, r.y - p.y, r.w, r.h);
 }
 
+inline constexpr SDL_Rect center_rect(const SDL_Point& smaller_size, const SDL_Rect& into) noexcept {
+    auto diff_w = into.w - smaller_size.x;
+    auto diff_h = into.h - smaller_size.y;
+    return rect(into.x + diff_w / 2, into.y + diff_h / 2, smaller_size.x, smaller_size.y);
+}
+
 inline constexpr SDL_Color rgba(Uint8 r, Uint8 g, Uint8 b, Uint8 a) noexcept {
     return {r, g, b, a};
 }
 
-static const SDL_Color FORE_COLOR = rgba(128, 192, 255, 255);
-static const SDL_Color BLACK = rgba(0, 0, 0, 255);
+extern const int FONT_SIZE;
 
-static const int FONT_SIZE = 32;
+extern const SDL_Color FORE_COLOR;
+extern const SDL_Color MENU_COLOR;
+extern const SDL_Color FIELD_COLOR;
+extern const SDL_Color BLACK;
 
 inline std::runtime_error sdl_exception() {
     return std::runtime_error(SDL_GetError());
