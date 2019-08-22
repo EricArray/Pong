@@ -44,8 +44,8 @@ set(
         src/PongWorld.hpp
         src/OptionMenu.cpp
         src/OptionMenu.hpp
-        src/RenderEngine.cpp
-        src/RenderEngine.hpp
+        src/Renderer.cpp
+        src/Renderer.hpp
         src/SaveHighScoreScene.cpp
         src/SaveHighScoreScene.hpp
         src/Scene.cpp

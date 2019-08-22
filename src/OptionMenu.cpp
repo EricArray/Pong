@@ -21,17 +21,17 @@ OptionMenu::OptionMenu(std::string&& title, const std::vector<OptionMenuOptionDe
     options(generate_options(option_defs)) {
 }
 
-void OptionMenu::render(const RenderEngine& re, int x, int y) {
-    re.render_texture(this->title_tex.get(re), x, y);
+void OptionMenu::render(const Renderer& re, const SDL_Rect& dst) {
+    re.render_texture(this->title_tex.get(re), point(dst.x, dst.y));
 
     re.render_rect(
-        rect(x + 0, y + 32, 512, static_cast<int>(this->options.size() * 32) + 20),
+        rect(dst.x, dst.y + FONT_SIZE, dst.w, dst.h - FONT_SIZE),
         FORE_COLOR
     );
 
     int i = 0;
     for (auto& option : this->options) {
-        re.render_texture(option.texture.get(re), x + 10, y + 42 + i * 32);
+        re.render_texture(option.texture.get(re), point(dst.x + 10, dst.y + 42 + i * 32));
         i += 1;
     }
 }

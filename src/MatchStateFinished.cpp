@@ -21,11 +21,11 @@ MatchSceneAction MatchStateFinished::on_update() {
     return MatchSceneAction::NoAction;
 }
 
-void MatchStateFinished::on_render(const RenderEngine& re) {
+void MatchStateFinished::on_render(const Renderer& re) {
     auto ticks_now = SDL_GetTicks();
     auto ticks_diff = this->ticks_created - ticks_now;
     auto ticks_normalized = ticks_diff % WINNER_TEXTURE_DISPLAY_PERIOD;
     if (ticks_normalized < WINNER_TEXTURE_DISPLAY_PERIOD/2) {
-        re.render_texture(this->winner_texture.get(re), 200, 200);
+        re.render_texture(this->winner_texture.get(re), point(200, 200));
     }
 }

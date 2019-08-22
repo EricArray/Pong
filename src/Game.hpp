@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "Scene.hpp"
-#include "RenderEngine.hpp"
+#include "Renderer.hpp"
 #include "Sdl.hpp"
 #include "PhysicsWorld.hpp"
 
@@ -27,7 +27,7 @@ public:
     void change_scene(std::unique_ptr<Scene> new_next_scene);
     void save_score(const std::string& name, Player winner, VsMode vs_mode, int score_p1, int score_p2);
 
-    [[nodiscard]] const RenderEngine& renderer() const {
+    [[nodiscard]] const Renderer& renderer() const {
         return this->render_engine;
     }
 
@@ -42,7 +42,7 @@ private:
     void render();
 
     Sdl sdl;
-    RenderEngine render_engine;
+    Renderer render_engine;
     bool running;
     std::unique_ptr<Scene> scene;
     std::unique_ptr<Scene> next_scene;

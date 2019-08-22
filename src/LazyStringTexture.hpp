@@ -2,12 +2,12 @@
 
 #include <string>
 #include "Texture.hpp"
-#include "RenderEngine.hpp"
+#include "Renderer.hpp"
 
 class LazyStringTexture {
 public:
     explicit LazyStringTexture(std::string&& text) :
-        lazy_texture([text = std::move(text)](const RenderEngine& re) {
+        lazy_texture([text = std::move(text)](const Renderer& re) {
             return re.create_text_texture(text);
         }) {
 
@@ -23,8 +23,8 @@ public:
         return *this;
     }
 
-    Texture& get(const RenderEngine& re) { return lazy_texture.get(re); }
+    Texture& get(const Renderer& re) { return lazy_texture.get(re); }
 
 private:
-    Lazy<Texture, const RenderEngine&> lazy_texture;
+    Lazy<Texture, const Renderer&> lazy_texture;
 };

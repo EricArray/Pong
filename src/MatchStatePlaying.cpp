@@ -20,6 +20,6 @@ MatchSceneAction MatchStatePlaying::on_update() {
     return MatchSceneAction::UpdateWorld;
 }
 
-void MatchStatePlaying::on_render(const RenderEngine&) {
+void MatchStatePlaying::on_render(const Renderer&) {
 
 }

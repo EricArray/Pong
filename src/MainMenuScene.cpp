@@ -45,5 +45,5 @@ void MainMenuScene::on_update() {
 }
 
 void MainMenuScene::on_render() {
-    this->option_menu.render(this->game.renderer(), 0, 0);
+    this->option_menu.render(this->game.renderer(), rect(0, 0, Renderer::WINDOW_W / 2, Renderer::WINDOW_H));
 }

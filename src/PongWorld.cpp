@@ -115,7 +115,7 @@ std::vector<MatchSceneAction> PongWorld::update() {
     return actions;
 }
 
-void PongWorld::render(const RenderEngine& re, int x, int y) {
+void PongWorld::render(const Renderer& re, int x, int y) {
     auto field_rect = rect(0, 0, RENDER_FIELD_W, RENDER_FIELD_H);
     auto view_port = field_rect + point(x, y);
 

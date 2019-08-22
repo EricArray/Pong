@@ -38,7 +38,7 @@ void MatchScene::on_update() {
 }
 
 void MatchScene::on_render() {
-    this->header_component.render(game.renderer(), 0, 0);
+    this->header_component.render(game.renderer(), point(0, 0));
     this->pong_world.render(game.renderer(), 0, 50);
     this->state->on_render(game.renderer());
 }

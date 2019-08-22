@@ -29,20 +29,20 @@ HighScoreListComponent::HighScoreListComponent(const Game& game) {
     }
 }
 
-void HighScoreListComponent::render(const RenderEngine& re, int x, int y) const {
-    re.set_view_port(rect(x, y, 800, ITEM_HEIGHT * 10));
+void HighScoreListComponent::render(const Renderer& re, int x, int y) const {
+    re.set_view_port(rect(x, y, 800, FONT_SIZE * 10));
 
-    re.render_rect(rect(0, 0, 800, ITEM_HEIGHT * 10), FORE_COLOR);
+    re.render_rect(rect(0, 0, 800, FONT_SIZE * 10), FORE_COLOR);
 
     int i = 0;
     for (auto& item : this->items) {
-        auto item_y = ITEM_HEIGHT * i;
-        re.render_texture(item.rank, 0, item_y);
-        re.render_texture(item.name, 100, item_y);
-        re.render_texture(item.winner, 400, item_y);
-        re.render_texture(item.vs_mode, 500, item_y);
-        re.render_texture(item.score_p1, 700, item_y);
-        re.render_texture(item.score_p2, 750, item_y);
+        auto item_y = FONT_SIZE * i;
+        re.render_texture(item.rank, point(0, item_y));
+        re.render_texture(item.name, point(100, item_y));
+        re.render_texture(item.winner, point(400, item_y));
+        re.render_texture(item.vs_mode, point(500, item_y));
+        re.render_texture(item.score_p1, point(700, item_y));
+        re.render_texture(item.score_p2, point(750, item_y));
         i += 1;
     }
 

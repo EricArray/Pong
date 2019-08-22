@@ -1,9 +1,7 @@
 #pragma once
 
-#include "RenderEngine.hpp"
+#include "Renderer.hpp"
 #include "Game.hpp"
-
-static const int ITEM_HEIGHT = 40;
 
 struct HighScoreItem {
     HighScoreItem(Texture rank, Texture name, Texture winner, Texture vs_mode, Texture score_p1, Texture score_p2) :
@@ -25,7 +23,7 @@ class HighScoreListComponent {
 public:
     explicit HighScoreListComponent(const Game& game);
 
-    void render(const RenderEngine& re, int x, int y) const;
+    void render(const Renderer& re, int x, int y) const;
 
 private:
     std::vector<HighScoreItem> items;

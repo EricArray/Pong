@@ -42,6 +42,7 @@ inline constexpr SDL_Color rgba(Uint8 r, Uint8 g, Uint8 b, Uint8 a) noexcept {
 static const SDL_Color FORE_COLOR = rgba(128, 192, 255, 255);
 static const SDL_Color BLACK = rgba(0, 0, 0, 255);
 
+static const int FONT_SIZE = 32;
 
 inline std::runtime_error sdl_exception() {
     return std::runtime_error(SDL_GetError());

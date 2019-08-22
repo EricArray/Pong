@@ -32,6 +32,6 @@ void SaveHighScoreScene::on_update() {
 
 void SaveHighScoreScene::on_render() {
     auto& re = this->game.renderer();
-    re.render_texture(this->title_texture.get(re), 0, 0);
-    re.render_texture(this->name_texture.get(re), 40, 40);
+    re.render_texture(this->title_texture.get(re), point(0, 0));
+    re.render_texture(this->name_texture.get(re), point(40, 40));
 }

@@ -26,6 +26,6 @@ MatchSceneAction MatchStatePaused::on_update() {
     return MatchSceneAction::NoAction;
 }
 
-void MatchStatePaused::on_render(const RenderEngine& re) {
-    this->menu.render(re, 100, 100);
+void MatchStatePaused::on_render(const Renderer& re) {
+    this->menu.render(re, rect(100, 100, 500, 500));
 }

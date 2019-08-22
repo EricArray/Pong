@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PhysicsWorld.hpp"
-#include "RenderEngine.hpp"
+#include "Renderer.hpp"
 
 enum class PaddleMovement {
     None,
@@ -15,7 +15,7 @@ public:
 
     std::vector<MatchSceneAction> update();
 
-    void render(const RenderEngine &re, int x, int y);
+    void render(const Renderer &re, int x, int y);
 
     void reset_ball();
     void set_paddle_movement_p1(PaddleMovement paddle_movement);

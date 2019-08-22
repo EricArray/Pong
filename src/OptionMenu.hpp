@@ -5,7 +5,7 @@
 #include <SDL2/SDL_scancode.h>
 #include <vector>
 
-#include "RenderEngine.hpp"
+#include "Renderer.hpp"
 #include "Game.hpp"
 #include "LazyStringTexture.hpp"
 
@@ -29,7 +29,7 @@ class OptionMenu {
 public:
     OptionMenu(std::string&& title, const std::vector<OptionMenuOptionDef>& option_defs);
 
-    void render(const RenderEngine& re, int x, int y);
+    void render(const Renderer& re, const SDL_Rect& dst);
 
 private:
     LazyStringTexture title_tex;
