@@ -4,69 +4,51 @@
 
 const float WORLD_ZOOM = 40.0f;
 
-const float BALL_SPEED = 10.0f;
+const float BALL_SPEED = 5.0f;
+const float PADDLE_SPEED = 5.0f;
 
-const float FIELD_WIDTH = 20.0f;
-const float FIELD_HEIGHT = 10.0f;
+const float FIELD_W = 20.0f;
+const float FIELD_H = 10.0f;
 const float BALL_RADIUS = 0.5f;
-const float PADDLE_WIDTH = 0.5f;
-const float PADDLE_HEIGHT = 3.0f;
+const float PADDLE_W = 0.5f;
+const float PADDLE_H = 3.0f;
 
-const int RENDER_FIELD_WIDTH = static_cast<int>(FIELD_WIDTH * WORLD_ZOOM);
-const int RENDER_FIELD_HEIGHT = static_cast<int>(FIELD_HEIGHT * WORLD_ZOOM);
+const int RENDER_FIELD_W = static_cast<int>(FIELD_W * WORLD_ZOOM);
+const int RENDER_FIELD_H = static_cast<int>(FIELD_H * WORLD_ZOOM);
 const float RENDER_BALL_RADIUS = BALL_RADIUS * WORLD_ZOOM;
-const int RENDER_PADDLE_WIDTH = static_cast<int>(PADDLE_WIDTH * WORLD_ZOOM);
-const int RENDER_PADDLE_HEIGHT = static_cast<int>(PADDLE_HEIGHT * WORLD_ZOOM);
+const int RENDER_PADDLE_W = static_cast<int>(PADDLE_W * WORLD_ZOOM);
+const int RENDER_PADDLE_H = static_cast<int>(PADDLE_H * WORLD_ZOOM);
 
-const b2Vec2 TOP_LEFT(0, 0);
-const b2Vec2 TOP_RIGHT(FIELD_WIDTH, 0);
-const b2Vec2 BOTTOM_LEFT(0, FIELD_HEIGHT);
-const b2Vec2 BOTTOM_RIGHT(FIELD_WIDTH, FIELD_HEIGHT);
-const b2Vec2 MIDDLE_LEFT(0, FIELD_HEIGHT / 2);
-const b2Vec2 MIDDLE_RIGHT(FIELD_WIDTH, FIELD_HEIGHT / 2);
-const b2Vec2 MIDDLE(FIELD_WIDTH / 2, FIELD_HEIGHT / 2);
+const b2Vec2 TOP_L(0, 0);
+const b2Vec2 TOP_R(FIELD_W, 0);
+const b2Vec2 BOT_L(0, FIELD_H);
+const b2Vec2 BOT_R(FIELD_W, FIELD_H);
+const b2Vec2 MID_L(0, FIELD_H / 2);
+const b2Vec2 MID_R(FIELD_W, FIELD_H / 2);
+const b2Vec2 CENTER(FIELD_W / 2, FIELD_H / 2);
 
-b2Body* create_table_sensor(PhysicsWorld& world, float width, float height) {
+b2Body* create_side_wall(PhysicsWorld& world, const b2Vec2& pos, const b2Vec2& size) {
     b2BodyDef body_def;
     body_def.type = b2_staticBody;
+    body_def.position = pos;
 
     b2PolygonShape shape;
-    shape.SetAsBox(width, height / 2);
-    shape.m_centroid.Set(0, height);
+    shape.SetAsBox(size.x / 2, size.y / 2);
 
     b2FixtureDef fixture_def;
     fixture_def.shape = &shape;
-    fixture_def.isSensor = true;
-
-    std::unique_ptr<BodyBehavior> behavior(new BodyBehaviorTable());
-
-    b2Body* body = world.create_body(body_def, fixture_def, std::move(behavior));
-
-    shape.m_centroid.Set(0, -height);
-    body->CreateFixture(&fixture_def);
-
-    return body;
-}
-
-b2Body* create_side_border(PhysicsWorld& world, const b2Vec2& a, const b2Vec2& b) {
-    b2BodyDef body_def;
-    body_def.type = b2_staticBody;
-
-    b2EdgeShape shape;
-    shape.Set(a, b);
-
-    b2FixtureDef fixture_def;
-    fixture_def.shape = &shape;
+    fixture_def.restitution = 1.0;
 
     return world.create_body(body_def, fixture_def, nullptr);
 }
 
-b2Body* create_goal_border(PhysicsWorld& world, const b2Vec2& a, const b2Vec2& b, Player goal_keeper) {
+b2Body* create_goal(PhysicsWorld& world, const b2Vec2& pos, const b2Vec2& size, Player goal_keeper) {
     b2BodyDef body_def;
     body_def.type = b2_staticBody;
+    body_def.position = pos;
 
-    b2EdgeShape shape;
-    shape.Set(a, b);
+    b2PolygonShape shape;
+    shape.SetAsBox(size.x / 2, size.y / 2);
 
     b2FixtureDef fixture_def;
     fixture_def.shape = &shape;
@@ -77,10 +59,9 @@ b2Body* create_goal_border(PhysicsWorld& world, const b2Vec2& a, const b2Vec2& b
     return world.create_body(body_def, fixture_def, std::move(body_behavior));
 }
 
-b2Body* create_ball(PhysicsWorld& world, const b2Vec2& position, float radius) {
+b2Body* create_ball(PhysicsWorld& world, float radius) {
     b2BodyDef body_def;
     body_def.type = b2_dynamicBody;
-    body_def.position = position;
     body_def.bullet = true;
     body_def.fixedRotation = true;
 
@@ -105,24 +86,23 @@ b2Body* create_paddle(PhysicsWorld& world, const b2Vec2& position, float width, 
 
     b2FixtureDef fixture_def;
     fixture_def.shape = &shape;
+    fixture_def.restitution = 1.0;
 
     return world.create_body(body_def, fixture_def, nullptr);
 }
 
 PongWorld::PongWorld() {
-    create_table_sensor(this->physics_world, FIELD_WIDTH, FIELD_HEIGHT);
+    create_side_wall(this->physics_world, b2Vec2(FIELD_W / 2, -FIELD_H / 2), b2Vec2(FIELD_W * 2, FIELD_H));
+    create_side_wall(this->physics_world, b2Vec2(FIELD_W / 2, FIELD_H * 1.5), b2Vec2(FIELD_W * 2, FIELD_H));
 
-    create_side_border(this->physics_world, TOP_LEFT, TOP_RIGHT);
-    create_side_border(this->physics_world, BOTTOM_LEFT, BOTTOM_RIGHT);
+    create_goal(this->physics_world, b2Vec2(-FIELD_W / 2, FIELD_H / 2), b2Vec2(FIELD_W, FIELD_H), Player::P1);
+    create_goal(this->physics_world, b2Vec2(FIELD_W * 1.5, FIELD_H / 2), b2Vec2(FIELD_W, FIELD_H), Player::P2);
 
-    create_goal_border(this->physics_world, TOP_LEFT, BOTTOM_LEFT, Player::P1);
-    create_goal_border(this->physics_world, TOP_RIGHT, BOTTOM_RIGHT, Player::P2);
-
-    this->ball = create_ball(this->physics_world, MIDDLE, BALL_RADIUS);
+    this->ball = create_ball(this->physics_world, BALL_RADIUS);
     this->reset_ball();
 
-    this->paddle_p1 = create_paddle(this->physics_world, MIDDLE_LEFT + b2Vec2(0.5, 0), PADDLE_WIDTH, PADDLE_HEIGHT);
-    this->paddle_p2 = create_paddle(this->physics_world, MIDDLE_RIGHT - b2Vec2(0.5, 0), PADDLE_WIDTH, PADDLE_HEIGHT);
+    this->paddle_p1 = create_paddle(this->physics_world, MID_L + b2Vec2(2, 0), PADDLE_W, PADDLE_H);
+    this->paddle_p2 = create_paddle(this->physics_world, MID_R - b2Vec2(2, 0), PADDLE_W, PADDLE_H);
 }
 
 std::vector<MatchSceneAction> PongWorld::update() {
@@ -135,53 +115,43 @@ std::vector<MatchSceneAction> PongWorld::update() {
     return actions;
 }
 
-void PongWorld::render(const RenderEngine &re, int x, int y) {
-    auto field_rect = rect(0, 0, RENDER_FIELD_WIDTH, RENDER_FIELD_HEIGHT);
+void PongWorld::render(const RenderEngine& re, int x, int y) {
+    auto field_rect = rect(0, 0, RENDER_FIELD_W, RENDER_FIELD_H);
     auto view_port = field_rect + point(x, y);
 
     re.set_view_port(view_port);
 
     re.render_rect(field_rect, FORE_COLOR);
 
-    auto top_half = point(RENDER_FIELD_WIDTH / 2, 0);
-    auto bottom_half = point(RENDER_FIELD_WIDTH / 2, RENDER_FIELD_HEIGHT);
+    auto top_half = point(RENDER_FIELD_W / 2, 0);
+    auto bottom_half = point(RENDER_FIELD_W / 2, RENDER_FIELD_H);
     re.render_line(top_half, bottom_half, FORE_COLOR);
 
-    re.render_rect(rect(RENDER_FIELD_WIDTH / 2 - 30, RENDER_FIELD_HEIGHT / 2 - 30, 60, 60), FORE_COLOR);
+    re.render_rect(rect(RENDER_FIELD_W / 2 - 30, RENDER_FIELD_H / 2 - 30, 60, 60), FORE_COLOR);
 
     auto& ball_position = this->ball->GetPosition();
-    auto render_ball_position = point(static_cast<int>(ball_position.x * WORLD_ZOOM), static_cast<int>(ball_position.y * WORLD_ZOOM));
+    auto render_ball_position = point(static_cast<int>(ball_position.x * WORLD_ZOOM),
+                                      static_cast<int>(ball_position.y * WORLD_ZOOM));
     re.render_circle(render_ball_position, RENDER_BALL_RADIUS, FORE_COLOR);
 
     auto& p1_position = this->paddle_p1->GetPosition();
-    auto base_p1_rect = rect(-RENDER_PADDLE_WIDTH/2, -RENDER_PADDLE_HEIGHT/2, RENDER_PADDLE_WIDTH, RENDER_PADDLE_HEIGHT);
-    auto p1_position_offset = point(static_cast<int>(p1_position.x * WORLD_ZOOM), static_cast<int>(p1_position.y * WORLD_ZOOM));
+    auto base_p1_rect = rect(-RENDER_PADDLE_W / 2, -RENDER_PADDLE_H / 2, RENDER_PADDLE_W, RENDER_PADDLE_H);
+    auto p1_position_offset = point(static_cast<int>(p1_position.x * WORLD_ZOOM),
+                                    static_cast<int>(p1_position.y * WORLD_ZOOM));
     re.render_rect(base_p1_rect + p1_position_offset, FORE_COLOR);
 
     auto& p2_position = this->paddle_p2->GetPosition();
-    auto base_p2_rect = rect(-RENDER_PADDLE_WIDTH/2, -RENDER_PADDLE_HEIGHT/2, RENDER_PADDLE_WIDTH, RENDER_PADDLE_HEIGHT);
-    auto p2_position_offset = point(static_cast<int>(p2_position.x * WORLD_ZOOM), static_cast<int>(p2_position.y * WORLD_ZOOM));
+    auto base_p2_rect = rect(-RENDER_PADDLE_W / 2, -RENDER_PADDLE_H / 2, RENDER_PADDLE_W, RENDER_PADDLE_H);
+    auto p2_position_offset = point(static_cast<int>(p2_position.x * WORLD_ZOOM),
+                                    static_cast<int>(p2_position.y * WORLD_ZOOM));
     re.render_rect(base_p2_rect + p2_position_offset, FORE_COLOR);
 
     re.clear_view_port();
 }
 
-b2Vec2 linear_vel_of(PaddleMovement movement) {
-    switch (movement) {
-        case PaddleMovement::None:
-            return b2Vec2_zero;
-        case PaddleMovement::Up:
-            return b2Vec2(0, -5);
-        case PaddleMovement::Down:
-            return b2Vec2(0, 5);
-        default:
-            throw unexpected();
-    }
-}
-
 void PongWorld::reset_ball() {
-    this->ball->SetTransform(MIDDLE, 0);
-    
+    this->ball->SetTransform(CENTER, 0);
+
     auto ticks = SDL_GetTicks();
     auto angle = ticks % 180;
     if (angle > 90) angle += 90;
@@ -192,10 +162,29 @@ void PongWorld::reset_ball() {
     this->ball->SetLinearVelocity(BALL_SPEED * dir);
 }
 
+void set_paddle_movement(PaddleMovement paddle_movement, b2Body* paddle) {
+    auto& pos = paddle->GetPosition();
+    auto too_close_to_wall =
+        (paddle_movement == PaddleMovement::Up && pos.y - PADDLE_H / 2 <= BALL_RADIUS * 2) ||
+        (paddle_movement == PaddleMovement::Down && pos.y + PADDLE_H / 2 >= FIELD_H - BALL_RADIUS * 2);
+    if (too_close_to_wall) {
+        paddle_movement = PaddleMovement::None;
+    }
+
+    float y;
+    switch (paddle_movement) {
+        case PaddleMovement::None: y = 0; break;
+        case PaddleMovement::Up: y = -1; break;
+        case PaddleMovement::Down: y = 1; break;
+        default: throw unexpected();
+    }
+    paddle->SetLinearVelocity(PADDLE_SPEED * b2Vec2(0, y));
+}
+
 void PongWorld::set_paddle_movement_p1(PaddleMovement paddle_movement) {
-    this->paddle_p1->SetLinearVelocity(linear_vel_of(paddle_movement));
+    set_paddle_movement(paddle_movement, this->paddle_p1);
 }
 
 void PongWorld::set_paddle_movement_p2(PaddleMovement paddle_movement) {
-    this->paddle_p2->SetLinearVelocity(linear_vel_of(paddle_movement));
+    set_paddle_movement(paddle_movement, this->paddle_p2);
 }
