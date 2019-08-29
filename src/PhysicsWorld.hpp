@@ -11,10 +11,10 @@ public:
     virtual MatchSceneAction on_collision() = 0;
 };
 
-class BodyBehaviorTable: public BodyBehavior {
+class BodyBehaviorBall: public BodyBehavior {
 public:
     MatchSceneAction on_collision() override {
-        return MatchSceneAction::BallOutsideOfTable;
+        return MatchSceneAction::PlayBounceSound;
     }
 };
 

@@ -8,7 +8,10 @@ PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.3)
 PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.14)
 PKG_SEARCH_MODULE(SDL2GFX REQUIRED SDL2_gfx>=1.0.0)
-INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${SDL2TTF_INCLUDE_DIR})
+PKG_SEARCH_MODULE(SDL2MIX REQUIRED SDL2_mixer>=2.0.2)
+INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIR} ${SDL2TTF_INCLUDE_DIR} ${SDL2MIX_INCLUDE_DIR})
+
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /usr/local/lib)
 
 set(
         SOURCES
@@ -39,6 +42,8 @@ set(
         src/MatchStatePaused.hpp
         src/MatchStatePlaying.cpp
         src/MatchStatePlaying.hpp
+        src/Mixer.cpp
+        src/Mixer.hpp
         src/NullScene.hpp
         src/PhysicsWorld.hpp
         src/PhysicsWorld.cpp
@@ -58,5 +63,6 @@ set(
         src/Texture.hpp
 )
 add_executable(pong ${SOURCES})
-target_link_libraries(pong SDL2 SDL2_image SDL2_ttf SDL2_gfx Box2D)
+target_link_libraries(pong SDL2 SDL2_image SDL2_ttf SDL2_gfx SDL2_mixer mpg123 Box2D)
 target_compile_options(pong PRIVATE -Wall -Wextra -pedantic -Werror)
+

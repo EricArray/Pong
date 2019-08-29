@@ -3,7 +3,7 @@
 #include "Player.hpp"
 
 const float BALL_SPEED = 6.0f;
-const float PADDLE_SPEED = 6.0f;
+const float PADDLE_SPEED = 8.0f;
 
 const float FIELD_W = 30.0f;
 const float FIELD_H = 15.0f;
@@ -65,7 +65,9 @@ b2Body* create_ball(PhysicsWorld& world, float radius) {
     fixture_def.restitution = 1.0f;
     fixture_def.friction = 0.0f;
 
-    return world.create_body(body_def, {fixture_def}, nullptr);
+    std::unique_ptr<BodyBehavior> body_behavior(new BodyBehaviorBall());
+
+    return world.create_body(body_def, {fixture_def}, std::move(body_behavior));
 }
 
 b2Body* create_paddle(PhysicsWorld& world, const b2Vec2& position, float width, float height) {

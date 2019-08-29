@@ -5,6 +5,7 @@
 #include "Renderer.hpp"
 #include "Sdl.hpp"
 #include "PhysicsWorld.hpp"
+#include "Mixer.hpp"
 
 class Game {
 public:
@@ -19,7 +20,11 @@ public:
     void change_scene(std::unique_ptr<Scene> new_next_scene);
 
     [[nodiscard]] const Renderer& renderer() const {
-        return this->render_engine;
+        return this->_renderer;
+    }
+
+    [[nodiscard]] const Mixer& mixer() const {
+        return this->_mixer;
     }
 
 private:
@@ -31,7 +36,8 @@ private:
     void render();
 
     Sdl sdl;
-    Renderer render_engine;
+    Renderer _renderer;
+    Mixer _mixer;
     bool running;
     std::unique_ptr<Scene> scene;
     std::unique_ptr<Scene> next_scene;

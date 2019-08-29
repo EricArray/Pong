@@ -10,6 +10,7 @@ const int Game::WINNING_SCORE = 7;
 
 Game::Game() :
     running(false), scene(new NullScene(*this)), next_scene(nullptr) {
+    this->mixer().play_music();
 }
 
 void Game::start() {
@@ -62,7 +63,7 @@ void Game::update_logic() {
 }
 
 void Game::render() {
-    this->render_engine.clear();
+    this->_renderer.clear();
     this->scene->on_render();
-    this->render_engine.present();
+    this->_renderer.present();
 }

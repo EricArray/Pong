@@ -10,4 +10,5 @@ enum class MatchSceneAction {
     CompleteMatch,
     Quit,
     BallOutsideOfTable,
+    PlayBounceSound,
 };

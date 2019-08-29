@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #include <iostream>
 #include <stdexcept>
@@ -58,6 +59,10 @@ inline std::runtime_error sdl_exception() {
 
 inline std::runtime_error ttf_exception() {
     return std::runtime_error(TTF_GetError());
+}
+
+inline std::runtime_error mix_exception() {
+    return std::runtime_error(Mix_GetError());
 }
 
 

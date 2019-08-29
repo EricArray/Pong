@@ -72,10 +72,12 @@ void MatchScene::react(MatchSceneAction action) {
             break;
         case MatchSceneAction::Pause: {
             this->change_state(std::unique_ptr<MatchState>(new MatchStatePaused()));
+            this->game.mixer().pause();
             break;
         }
         case MatchSceneAction::Resume: {
             this->change_state(std::unique_ptr<MatchState>(new MatchStatePlaying()));
+            this->game.mixer().resume();
             break;
         }
         case MatchSceneAction::UpdateWorld: {
@@ -107,6 +109,10 @@ void MatchScene::react(MatchSceneAction action) {
         }
         case MatchSceneAction::BallOutsideOfTable: {
             this->pong_world.reset_ball();
+            break;
+        }
+        case MatchSceneAction::PlayBounceSound: {
+            this->game.mixer().play_sound("bounce");
             break;
         }
     }
