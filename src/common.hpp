@@ -53,18 +53,6 @@ extern const SDL_Color MENU_COLOR;
 extern const SDL_Color FIELD_COLOR;
 extern const SDL_Color BLACK;
 
-inline std::runtime_error sdl_exception() {
-    return std::runtime_error(SDL_GetError());
-}
-
-inline std::runtime_error ttf_exception() {
-    return std::runtime_error(TTF_GetError());
-}
-
-inline std::runtime_error mix_exception() {
-    return std::runtime_error(Mix_GetError());
-}
-
 
 inline std::runtime_error unexpected() {
     throw std::runtime_error("Unexpected value");
@@ -72,4 +60,21 @@ inline std::runtime_error unexpected() {
 
 inline void fail(const std::string& error) {
     throw std::runtime_error("Test failed: "s + error);
+}
+
+
+struct SdlException : public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
+inline SdlException sdl_exception() {
+    return SdlException(SDL_GetError());
+}
+
+inline SdlException ttf_exception() {
+    return SdlException(TTF_GetError());
+}
+
+inline SdlException mix_exception() {
+    return SdlException(Mix_GetError());
 }

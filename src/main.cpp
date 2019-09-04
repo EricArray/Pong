@@ -1,5 +1,5 @@
-#include "Game.hpp"
-#include "HighScores.hpp"
+#include "game/Game.hpp"
+#include "game/HighScores.hpp"
 
 void run_pre_tests();
 void start_game();
