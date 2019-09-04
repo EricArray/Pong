@@ -63,6 +63,6 @@ set(
         src/core/Texture.hpp
 )
 add_executable(pong ${SOURCES})
-target_link_libraries(pong SDL2 SDL2_image SDL2_ttf SDL2_gfx SDL2_mixer mpg123 Box2D)
+target_link_libraries(pong SDL2 SDL2_image SDL2_ttf SDL2_gfx SDL2_mixer Box2D)
 target_compile_options(pong PRIVATE -Wall -Wextra -pedantic -Werror)
 
